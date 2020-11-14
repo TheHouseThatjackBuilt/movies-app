@@ -82,4 +82,8 @@ strong {
 .wrapper {
   width: 1010px;
   margin: auto;  
+
+  &__spin {
+    display: grid;    
+  }
 }

@@ -1,7 +1,8 @@
 // global imports
+
 import React, { Component } from 'react';
-import PropTypes, {
-  arrayOf, shape, string, number,
+import {
+  arrayOf, shape, string, number, func,
 } from 'prop-types';
 import { format } from 'date-fns';
 import { Button, Rate } from 'antd';
@@ -13,8 +14,6 @@ export default class MovieItem extends Component {
     genres: [],
   };
 
-  sourcePic = 'https://image.tmdb.org/t/p/w220_and_h330_face';
-
   componentDidMount = () => {
     this.genreIdToString();
   };
@@ -24,11 +23,12 @@ export default class MovieItem extends Component {
     const { genreId } = movies;
     const decoder = await decoderGenres;
     const genres = genreId.map((elem) => decoder.get(elem));
-    this.setState({ genres });
+    this.setState({
+      genres: [...genres],
+    });
   };
 
   render() {
-    const { sourcePic } = this;
     const { genres } = this.state;
     const { movies } = this.props;
     const {
@@ -42,17 +42,15 @@ export default class MovieItem extends Component {
         {genre}
       </Button>
     ));
-
     return (
       <article className="movie-item">
         <div className="movie-item__poster">
-          <img src={`${sourcePic}${posterPath}`} alt="poster" />
+          <img src={`https://image.tmdb.org/t/p/w220_and_h330_face${posterPath}`} alt="poster" />
         </div>
         <div className="movie-item__containter">
           <header className="movie-item__header">
             <h2 className="movie-item__title">{title}</h2>
             <div className="movie-item__total-rate">{voteAverage}</div>
-            {/* <Badge count={voteAverage} color="#fff" text={voteAverage} className="movie-item__badge" /> */}
           </header>
           <div className="movie-item__body">
             <div className="movie-item__date">
@@ -83,7 +81,7 @@ MovieItem.propTypes = {
     genreId: arrayOf(number).isRequired,
   }).isRequired,
   decoderGenres: shape({
-    then: PropTypes.func.isRequired,
-    catch: PropTypes.func.isRequired,
+    then: func.isRequired,
+    catch: func.isRequired,
   }).isRequired,
 };
