@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+nav, footer, header, aside {
+  display: block;
+}
+html, body {
+  height: 100%;
+  width: 100%;
+  line-height: 1;
+  font-size: 10px;
+  font-family: 'inter', sans-serif;  
+  background-color: white;
+}
+input, button, textarea {
+  font-family: inherit;
+}
+button {
+  cursor: pointer;
+}
+img {  
+  max-width: 100%;  
+}
+p {
+  margin-bottom: 0;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-size: inherit;
+  font-weight: inherit;
+  margin-bottom: 0;
+}
+/* reset-style block start ---------- */
+
+* {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+:focus, :active {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus, a:active {
+  outline: none;
+}
+
+input::-ms-clear {
+  display: none;
+}
+
+button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+
+a, a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+  outline: none;
+}
+
+ul li {
+  list-style: none;
+}
+
+strong {
+  font-weight: normal;
+}
+
+/* reset-style block end ---------- */
+
+.wrapper {
+  width: 1010px;
+  margin: auto;  
+}
