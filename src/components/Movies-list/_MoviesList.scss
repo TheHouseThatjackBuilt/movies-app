@@ -1,0 +1,10 @@
+.main {
+  width: 1010px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &__list {
+    width: 1010px;
+  }
+}

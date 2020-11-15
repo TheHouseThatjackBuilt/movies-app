@@ -1,0 +1,21 @@
+.header {
+  width: 1000px;
+  display: flex;
+  justify-content: center;
+
+  &__input {
+    width: 985px;
+    border-radius: 5px;
+    height: 40px;
+
+    &::placeholder {
+      text-indent: 0;
+      transition: text-indent 0.3s ease;
+    }
+
+    &:focus::placeholder {
+      text-indent: 2000px;
+      transition: text-indent 0.8s ease;
+    }
+  }
+}

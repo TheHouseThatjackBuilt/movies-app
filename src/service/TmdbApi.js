@@ -3,8 +3,6 @@ export default class TmdbService {
   tokenV4 =
     'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3OTRiYWNjZTFjMzc1YTBhMzExYjQ3YTM4NDQ1YmE5ZSIsInN1YiI6IjVmYTQyNTM4MjE2MjFkMDAzZmYxZWZkZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.C-Qx9MKzLfjcIx-h3fiuXViG75SXIMDJ6KSpDcq6lYc';
 
-  linkToGetFilms = 'https://api.themoviedb.org/3/search/movie?language=en-En&query=return&page=1&include_adult=false';
-
   linkToGetGenresList = 'https://api.themoviedb.org/3/genre/movie/list';
 
   requestOptions = {
@@ -15,9 +13,9 @@ export default class TmdbService {
   };
 
   sendRequest = async (url, options) => {
-    const request = await fetch(url, options);
-    if (!request.ok) throw new Error('Something going wrong with fetch');
-    return request.json();
+    const response = await fetch(url, options);
+    if (!response.ok) throw new Error(response.status);
+    return response.json();
   };
 
   getGenresList = async () => {
@@ -32,9 +30,14 @@ export default class TmdbService {
     return genreList.genres.reduce((acc, { id, name }) => acc.set(id, name), new Map());
   };
 
-  getFilms = async () => {
-    const { linkToGetFilms, requestOptions, sendRequest } = this;
-    const request = await sendRequest(linkToGetFilms, requestOptions);
-    return request.results;
+  getFilms = async (request, page) => {
+    const { requestOptions, sendRequest } = this;
+    if (request === '') request = 'return';
+    const linkToGetFilms = `https://api.themoviedb.org/3/search/movie?&language=en-En&query=${request}&page=${page}&include_adult=false`;
+    const response = await sendRequest(linkToGetFilms, requestOptions);
+    return {
+      movies: response.results,
+      pages: response.total_pages,
+    };
   };
 }

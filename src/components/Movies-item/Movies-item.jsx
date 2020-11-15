@@ -1,13 +1,12 @@
-// global imports
-
 import React, { Component } from 'react';
 import {
   arrayOf, shape, string, number, func,
 } from 'prop-types';
 import { format } from 'date-fns';
 import { Button, Rate } from 'antd';
-// local imports
+
 import { formattedDescription } from '../../service';
+import poster from './no-poster.jpg';
 
 export default class MovieItem extends Component {
   state = {
@@ -36,7 +35,9 @@ export default class MovieItem extends Component {
     } = movies;
     const description = formattedDescription(overview);
     const rating = popularity / 10;
-    const formatDate = format(new Date(releaseDate), 'PP');
+    const src = posterPath ? `https://image.tmdb.org/t/p/w220_and_h330_face${posterPath}` : poster;
+    const conditionFormatDate = typeof releaseDate !== 'undefined' && releaseDate.length === 10;
+    const formatDate = conditionFormatDate ? format(new Date(releaseDate), 'PP') : releaseDate;
     const genreButtons = genres.map((genre) => (
       <Button className="movie-item__genre-item" key={genre} size="small">
         {genre}
@@ -45,7 +46,7 @@ export default class MovieItem extends Component {
     return (
       <article className="movie-item">
         <div className="movie-item__poster">
-          <img src={`https://image.tmdb.org/t/p/w220_and_h330_face${posterPath}`} alt="poster" />
+          <img src={src} alt="poster" />
         </div>
         <div className="movie-item__containter">
           <header className="movie-item__header">
@@ -70,16 +71,23 @@ export default class MovieItem extends Component {
   }
 }
 
+MovieItem.defaultProps = {
+  movies: {
+    posterPath: poster,
+    releaseDate: 'no information available',
+  },
+};
+
 MovieItem.propTypes = {
   movies: shape({
-    posterPath: string.isRequired,
+    posterPath: string,
+    releaseDate: string,
     title: string.isRequired,
-    releaseDate: string.isRequired,
     overview: string.isRequired,
     popularity: number.isRequired,
     voteAverage: number.isRequired,
     genreId: arrayOf(number).isRequired,
-  }).isRequired,
+  }),
   decoderGenres: shape({
     then: func.isRequired,
     catch: func.isRequired,
