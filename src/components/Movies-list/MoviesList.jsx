@@ -1,19 +1,65 @@
 /* eslint-disable */
 import React, { Component } from 'react';
-import { Row, Col } from 'antd';
-import { arrayOf, shape, string, number, func } from 'prop-types';
+import { Row, Col, Spin, Alert, Pagination } from 'antd';
+import { string } from 'prop-types';
 
-import MovieItem from '../Movies-item';
+import { TmdbService, createFilmsList, errorHandler } from '../../service';
+import MovieItem from './Movies-item';
 
 export default class MoviesList extends Component {
   state = {
-    page: 1,
+    dataStatus: {
+      loading: false,
+    },
+    requestData: {
+      movies: [],
+      allPages: null,
+      currentPage: 1,
+    },
+    error: {
+      status: false,
+      message: '',
+    },
   };
 
+  tmdbService = new TmdbService();
+
+  decoderGenres = this.tmdbService.getGenres();
+
+  componentDidMount = () => {
+    const { currentPage } = this.state.requestData;
+    const { searchRequest } = this.props;
+    this.updateState(searchRequest, currentPage).catch((reject) => this.setState({ error: errorHandler(reject) }));
+  };
+
+  componentDidUpdate = (prevProps, prevState) => {
+    const { currentPage } = this.state.requestData;
+    const { searchRequest } = this.props;
+
+    const conditionOne = currentPage !== prevState.requestData.currentPage;
+    const conditionTwo = searchRequest !== prevProps.searchRequest;
+    const conditionThree = searchRequest !== '' && searchRequest.length > 3;
+
+    if ((conditionOne || conditionTwo) && conditionThree)
+      this.updateState(searchRequest, currentPage).catch((reject) => this.setState({ error: errorHandler(reject) }));
+  };
+
+  updateState = async (userRequest, page) => {
+    if (!navigator.onLine && !this.state.error.status) throw new Error('The connection will lost');
+
+    const { tmdbService } = this;
+    this.setState({ dataStatus: { loading: true } });
+    const data = await tmdbService.getFilms(userRequest, page);
+    const movies = data.movies.map((elem) => createFilmsList(elem));
+    this.setState({ requestData: { movies, allPages: data.pages }, dataStatus: { loading: false } });
+  };
+
+  switchThePage = (event) => this.setState({ requestData: { currentPage: event } });
+
   render = () => {
-    const { switchPage } = this;
-    const { movies, decoderGenres, pages } = this.props;
-    const { allPages, currentPage } = pages;
+    const { switchThePage, decoderGenres } = this;
+    const { movies, allPages, currentPage } = this.state.requestData;
+
     const MoviesItem = movies.map(({ id, ...elems }) => (
       <Col className="gutter-row main__item" span={12} key={id}>
         <MovieItem movies={elems} decoderGenres={decoderGenres} />
@@ -25,41 +71,20 @@ export default class MoviesList extends Component {
         <Row className="main__list movies-app__main" gutter={[30, 30]}>
           {MoviesItem}
         </Row>
+        <Pagination
+          onChange={(evt) => switchThePage(evt)}
+          className="movies-app__pagination"
+          size="small"
+          defaultPageSize
+          showSizeChanger={false}
+          total={allPages}
+          defaultCurrent={currentPage}
+        />
       </main>
     );
   };
 }
 
-MoviesList.defaultProps = {
-  movies: {
-    posterPath: null,
-    releaseDate: null || undefined,
-    title: 'no information available',
-    overview: 'no information available',
-    popularity: 'no information available',
-    voteAverage: 'no information available',
-    genreId: 'no information available',
-  },
-};
-
 MoviesList.propTypes = {
-  decoderGenres: shape({
-    then: func.isRequired,
-    catch: func.isRequired,
-  }).isRequired,
-  movies: arrayOf(
-    shape({
-      posterPath: string,
-      title: string,
-      releaseDate: string,
-      overview: string,
-      popularity: number,
-      voteAverage: number,
-      genreId: arrayOf(number),
-    })
-  ),
-  pages: shape({
-    allPages: number.isRequired,
-    currentPage: number.isRequired,
-  }).isRequired,
+  searchRequest: string.isRequired,
 };

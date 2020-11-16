@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
 import { func } from 'prop-types';
@@ -7,29 +6,39 @@ import { Input } from 'antd';
 
 export default class Search extends Component {
   state = {
-    searchValue: null,
+    searchValue: '',
   };
 
-  // componentDidMount = () => {
-  //   this.userSearchParamsWithDebounce = debounce(this.onLabelChange, 500);
-  // };
-
-  onLabelChange = (evt) => {
-    this.setState({ searchValue: evt.target.value });
+  componentDidMount = () => {
+    this.userSearchParamsWithDebounce = debounce(this.decoratorForSearch, 300);
   };
 
-  // componentDidUpdate = (prevProps, prevState) => {
-  //   const { searchValue } = this.state;
-  //   const { userSearchParams } = this.props;
-  //   if (searchValue !== prevState.searchValue) userSearchParams(searchValue);
-  // };
+  onChange = (event) => {
+    const { value } = event.target;
+    const { userSearchParamsWithDebounce } = this;
+    this.setState({ searchValue: value });
+    userSearchParamsWithDebounce();
+  };
+
+  onSubmit = (event) => {
+    event.preventDefault();
+    this.setState({ searchValue: '' });
+  };
+
+  decoratorForSearch = () => {
+    const { searchValue } = this.state;
+    const { userSearchParams } = this.props;
+    userSearchParams(searchValue);
+  };
 
   render = () => {
-    const userSearchParamsWithDebounce = debounce(this.onLabelChange, 500);
-    console.log(userSearchParamsWithDebounce);
+    const { onChange, onSubmit } = this;
+    const { searchValue } = this.state;
     return (
       <header className="header movies-app__header">
-        <Input className="header__input" placeholder="Type to search..." />
+        <form onSubmit={onSubmit}>
+          <Input className="header__input" placeholder="Type to search..." onChange={onChange} value={searchValue} />
+        </form>
       </header>
     );
   };

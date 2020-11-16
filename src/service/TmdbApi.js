@@ -32,7 +32,6 @@ export default class TmdbService {
 
   getFilms = async (request, page) => {
     const { requestOptions, sendRequest } = this;
-    if (request === '') request = 'return';
     const linkToGetFilms = `https://api.themoviedb.org/3/search/movie?&language=en-En&query=${request}&page=${page}&include_adult=false`;
     const response = await sendRequest(linkToGetFilms, requestOptions);
     return {

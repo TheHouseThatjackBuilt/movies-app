@@ -5,7 +5,7 @@ import {
 import { format } from 'date-fns';
 import { Button, Rate } from 'antd';
 
-import { formattedDescription } from '../../service';
+import { formattedDescription } from '../../../service';
 import poster from './no-poster.jpg';
 
 export default class MovieItem extends Component {
