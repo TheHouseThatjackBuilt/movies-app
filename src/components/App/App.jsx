@@ -27,15 +27,14 @@ export default class App extends Component {
     this.tryCatchMount();
   };
 
-  // componentDidUpdate = (prevProps, prevState) => {
-  //   const { searchValue, currentPage } = this.state;
-  //   const { tryCatchMount } = this;
-  //   debugger;
-  //   const conditionOne = currentPage !== prevState.currentPage;
-  //   const conditionTwo = typeof searchValue !== 'undefined' && searchValue.length > 3;
-  //   const conditionThree = searchValue !== prevState.searchValue;
-  //   if (conditionOne || (conditionTwo && conditionThree)) tryCatchMount(searchValue, currentPage);
-  // };
+  componentDidUpdate = (prevProps, prevState) => {
+    const { searchValue, currentPage } = this.state;
+    const { tryCatchMount } = this;
+    const conditionOne = currentPage !== prevState.currentPage;
+    const conditionTwo = typeof searchValue !== 'undefined' && searchValue.length > 3;
+    const conditionThree = searchValue !== prevState.searchValue;
+    if (conditionOne || (conditionTwo && conditionThree)) tryCatchMount(searchValue, currentPage);
+  };
 
   updateState = async (request, page) => {
     const { tmdbService } = this;
