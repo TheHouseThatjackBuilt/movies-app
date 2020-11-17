@@ -37,7 +37,12 @@ export default class Search extends Component {
     return (
       <header className="header movies-app__header">
         <form onSubmit={onSubmit}>
-          <Input className="header__input" placeholder="Type to search..." onChange={onChange} value={searchValue} />
+          <Input
+            className="header__input"
+            placeholder="Пользуясь случаем передаю привет маме! (фильм искать здеся)"
+            onChange={onChange}
+            value={searchValue}
+          />
         </form>
       </header>
     );
