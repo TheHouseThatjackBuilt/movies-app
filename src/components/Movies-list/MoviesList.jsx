@@ -8,18 +8,12 @@ import MovieItem from './Movies-item';
 
 export default class MoviesList extends Component {
   state = {
-    dataStatus: {
-      loading: false,
-    },
-    requestData: {
-      movies: [],
-      allPages: null,
-      currentPage: 1,
-    },
-    error: {
-      status: false,
-      message: '',
-    },
+    loading: false,
+    movies: [],
+    allPages: null,
+    currentPage: 1,
+    status: false,
+    message: '',
   };
 
   tmdbService = new TmdbService();
@@ -27,16 +21,16 @@ export default class MoviesList extends Component {
   decoderGenres = this.tmdbService.getGenres();
 
   componentDidMount = () => {
-    const { currentPage } = this.state.requestData;
+    const { currentPage } = this.state;
     const { searchRequest } = this.props;
     this.updateState(searchRequest, currentPage).catch((reject) => this.setState({ error: errorHandler(reject) }));
   };
 
   componentDidUpdate = (prevProps, prevState) => {
-    const { currentPage } = this.state.requestData;
+    const { currentPage } = this.state;
     const { searchRequest } = this.props;
 
-    const conditionOne = currentPage !== prevState.requestData.currentPage;
+    const conditionOne = currentPage !== prevState.currentPage;
     const conditionTwo = searchRequest !== prevProps.searchRequest;
     const conditionThree = searchRequest !== '' && searchRequest.length > 3;
 
@@ -48,18 +42,18 @@ export default class MoviesList extends Component {
     if (!navigator.onLine && !this.state.error.status) throw new Error('The connection will lost');
 
     const { tmdbService } = this;
-    this.setState({ dataStatus: { loading: true } });
+    this.setState({ loading: true });
     const data = await tmdbService.getFilms(userRequest, page);
     const movies = data.movies.map((elem) => createFilmsList(elem));
-    this.setState({ requestData: { movies, allPages: data.pages }, dataStatus: { loading: false } });
+    this.setState({ movies, allPages: data.pages, loading: false });
   };
 
-  switchThePage = (event) => this.setState({ requestData: { currentPage: event } });
+  switchThePage = (event) => this.setState({ currentPage: event });
 
   render = () => {
     const { switchThePage, decoderGenres } = this;
-    const { movies, allPages, currentPage } = this.state.requestData;
-
+    const { movies, allPages, currentPage } = this.state;
+    console.log(allPages, currentPage);
     const MoviesItem = movies.map(({ id, ...elems }) => (
       <Col className="gutter-row main__item" span={12} key={id}>
         <MovieItem movies={elems} decoderGenres={decoderGenres} />
@@ -78,7 +72,7 @@ export default class MoviesList extends Component {
           defaultPageSize
           showSizeChanger={false}
           total={allPages}
-          defaultCurrent={currentPage}
+          defaultCurrent={1}
         />
       </main>
     );
