@@ -22,7 +22,8 @@
     "plugins": [
         "react"
     ],
-    "rules": {      
+    "rules": {  
+    "no-use-before-define": "off",
     "curly": ["error"],
     "max-len": ["error", { "code": 140 }],
     "max-depth": ["warn", 4],    

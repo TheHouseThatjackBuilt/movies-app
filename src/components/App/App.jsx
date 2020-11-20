@@ -1,51 +1,117 @@
-/* eslint-disable */
 import React, { Component } from 'react';
+import { Tabs } from 'antd';
+import { string, func, shape } from 'prop-types';
 
+import { TmdbService, TmdbProvider } from '../../service';
 import MoviesList from '../Movies-list';
 import Search from '../Search';
 
 export default class App extends Component {
   state = {
     searchValue: 'return',
+    sessionID: null,
+    activeTab: 'search',
+  };
+
+  tmdbService = new TmdbService();
+
+  decoderGenres = this.tmdbService.getGenres();
+
+  componentDidMount = () => {
+    this.getGuestSession();
+  };
+
+  getGuestSession = async () => {
+    const sessionID = await this.tmdbService.getGuestSession();
+    this.setState({ sessionID });
   };
 
   userSearchParams = (value) => {
     this.setState({ searchValue: value });
   };
 
-  render = () => {
-    const { userSearchParams } = this;
-    const { searchValue } = this.state;
+  changeTheTab = (tab) => {
+    this.setState({ activeTab: tab });
+  };
 
+  render = () => {
+    const {
+      userSearchParams, changeTheTab, decoderGenres, tmdbService,
+    } = this;
+    const { searchValue, sessionID, activeTab } = this.state;
+    const { getFilms, getRatingMovies, setRatingForMovie } = tmdbService;
     return (
-      <div className="movies-app">
-        <Search userSearchParams={userSearchParams} />
-        <MoviesList searchRequest={searchValue} />
-      </div>
+      <AppVisual
+        onChange={changeTheTab}
+        userSearchParams={userSearchParams}
+        getFilms={getFilms}
+        getRatingMovies={getRatingMovies}
+        setRatingForMovie={setRatingForMovie}
+        decoderGenres={decoderGenres}
+        tmdbService={tmdbService}
+        searchValue={searchValue}
+        activeTab={activeTab}
+        sessionID={sessionID}
+      />
     );
   };
 }
-// const { movies, loading, error, allPages, currentPage, searchValue } = this.state;
-// const { decoderGenres, userSearchParams, switchThePage } = this;
-// console.log(searchValue);
-// const spinWrap = (
-//   <div className="movies-app__spin">
-//     <Spin tip="Loading..." />
-//   </div>
-// );
-// const errorWrap = (
-//   <div className="movies-app__error">
-//     <Alert message={error.message} />
-//   </div>
-// );
-// const hasData = loading || error.status;
-// const spinner = loading ? spinWrap : null;
-// const alert = error.status ? errorWrap : null;
-// const moviesList = !hasData ? (
-//   <MoviesList
-//     movies={movies}
-//     decoderGenres={decoderGenres}
-//     switchThePage={() => switchThePage()}
-//     pages={{ currentPage, allPages }}
-//   />
-// ) : null;
+
+const AppVisual = ({
+  onChange,
+  userSearchParams,
+  decoderGenres,
+  searchValue,
+  activeTab,
+  sessionID,
+  getFilms,
+  getRatingMovies,
+  setRatingForMovie,
+}) => {
+  const { TabPane } = Tabs;
+  return (
+    <div className="movies-app">
+      <TmdbProvider value={decoderGenres}>
+        <Tabs defaultActiveKey="search" onChange={(tab) => onChange(tab)} centered="true">
+          <TabPane tab="Search" key="search">
+            <Search userSearchParams={userSearchParams} />
+            <MoviesList
+              getFilms={getFilms}
+              searchRequest={searchValue}
+              sessionID={sessionID}
+              setRatingForMovie={setRatingForMovie}
+            />
+          </TabPane>
+          <TabPane tab="Rated" key="rated">
+            <MoviesList
+              getFilms={getRatingMovies}
+              activeTab={activeTab}
+              sessionID={sessionID}
+              setRatingForMovie={setRatingForMovie}
+            />
+          </TabPane>
+        </Tabs>
+      </TmdbProvider>
+    </div>
+  );
+};
+
+AppVisual.defaultProps = {
+  searchValue: undefined,
+  sessionID: null,
+};
+
+AppVisual.propTypes = {
+  onChange: func.isRequired,
+  userSearchParams: func.isRequired,
+  activeTab: string.isRequired,
+  sessionID: string,
+  getFilms: func.isRequired,
+  getRatingMovies: func.isRequired,
+  setRatingForMovie: func.isRequired,
+  searchValue: string,
+  decoderGenres: shape({
+    then: func.isRequired,
+    catch: func.isRequired,
+  }).isRequired,
+};

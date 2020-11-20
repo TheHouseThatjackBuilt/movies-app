@@ -1,6 +1,3 @@
-const errorHandler = (err) => {
-  alert(`это пиздец ${err.message}`);
-  return { status: true, message: err.message ? err.message : 'unexpected error' };
-};
+const errorHandler = (err) => ({ errorStatus: true, errorMessage: err.message ? err.message : 'unexpected error' });
 
 export default errorHandler;

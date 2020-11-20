@@ -22,7 +22,7 @@ export default class Search extends Component {
 
   onSubmit = (event) => {
     event.preventDefault();
-    this.setState({ searchValue: '' });
+    setTimeout(() => this.setState({ searchValue: '' }), 200);
   };
 
   decoratorForSearch = () => {
@@ -39,7 +39,7 @@ export default class Search extends Component {
         <form onSubmit={onSubmit}>
           <Input
             className="header__input"
-            placeholder="Пользуясь случаем передаю привет маме! (фильм искать здеся)"
+            placeholder="Type to search here..."
             onChange={onChange}
             value={searchValue}
           />

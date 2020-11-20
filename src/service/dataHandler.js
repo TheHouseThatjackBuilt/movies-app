@@ -1,6 +1,6 @@
 const createFilmsList = (data) => {
   const {
-    poster_path, title, release_date, overview, popularity, vote_average, id, genre_ids,
+    poster_path, title, release_date, overview, vote_average, id, genre_ids, rating,
   } = data;
   return {
     posterPath: poster_path,
@@ -8,8 +8,8 @@ const createFilmsList = (data) => {
     voteAverage: vote_average,
     genreId: genre_ids,
     overview,
+    rating,
     title,
-    popularity,
     id,
   };
 };

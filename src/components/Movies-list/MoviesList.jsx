@@ -1,84 +1,157 @@
-/* eslint-disable */
-import React, { Component } from 'react';
-import { Row, Col, Spin, Alert, Pagination } from 'antd';
-import { string } from 'prop-types';
+import React, { PureComponent } from 'react';
+import {
+  Row, Col, Spin, Alert, Pagination,
+} from 'antd';
+import {
+  string, func, shape, arrayOf, element, number,
+} from 'prop-types';
 
-import { TmdbService, createFilmsList, errorHandler } from '../../service';
+import { createFilmsList, errorHandler, TmdbConsumer } from '../../service';
 import MovieItem from './Movies-item';
 
-export default class MoviesList extends Component {
+export default class MoviesList extends PureComponent {
   state = {
-    loading: false,
+    loadData: true,
     movies: [],
     allPages: null,
     currentPage: 1,
-    status: false,
-    message: '',
+    error: {
+      errorStatus: false,
+      errorMessage: '',
+    },
   };
-
-  tmdbService = new TmdbService();
-
-  decoderGenres = this.tmdbService.getGenres();
 
   componentDidMount = () => {
     const { currentPage } = this.state;
-    const { searchRequest } = this.props;
-    this.updateState(searchRequest, currentPage).catch((reject) => this.setState({ error: errorHandler(reject) }));
+    const { searchRequest, sessionID } = this.props;
+    this.updateState({ searchRequest, currentPage, sessionID }).catch((reject) => this.setState({ error: errorHandler(reject) }));
   };
 
   componentDidUpdate = (prevProps, prevState) => {
     const { currentPage } = this.state;
-    const { searchRequest } = this.props;
-
+    const { searchRequest, sessionID, activeTab } = this.props;
     const conditionOne = currentPage !== prevState.currentPage;
     const conditionTwo = searchRequest !== prevProps.searchRequest;
     const conditionThree = searchRequest !== '' && searchRequest.length > 3;
+    const ifElseCondition = (conditionOne || conditionTwo) && conditionThree;
 
-    if ((conditionOne || conditionTwo) && conditionThree)
-      this.updateState(searchRequest, currentPage).catch((reject) => this.setState({ error: errorHandler(reject) }));
+    const conditionRatingList = activeTab === 'rated' && prevProps.activeTab !== 'rated';
+    if (ifElseCondition) {
+      this.updateState({ searchRequest, currentPage, sessionID }).catch((reject) => this.setState({ error: errorHandler(reject) }));
+    }
+    if (conditionRatingList) {
+      this.updateState({ searchRequest, currentPage, sessionID }).catch((reject) => this.setState({ error: errorHandler(reject) }));
+    }
   };
 
-  updateState = async (userRequest, page) => {
-    if (!navigator.onLine && !this.state.error.status) throw new Error('The connection will lost');
-
-    const { tmdbService } = this;
-    this.setState({ loading: true });
-    const data = await tmdbService.getFilms(userRequest, page);
+  updateState = async (options) => {
+    if (!navigator.onLine) throw new Error('The connection will lost');
+    this.setState({
+      loadData: true,
+      error: {
+        errorStatus: false,
+        errorMessage: '',
+      },
+    });
+    const { getFilms } = this.props;
+    const data = await getFilms(options);
     const movies = data.movies.map((elem) => createFilmsList(elem));
-    this.setState({ movies, allPages: data.pages, loading: false });
+    this.setState({ movies, allPages: data.pages, loadData: false });
   };
 
   switchThePage = (event) => this.setState({ currentPage: event });
 
   render = () => {
-    const { switchThePage, decoderGenres } = this;
-    const { movies, allPages, currentPage } = this.state;
-    console.log(allPages, currentPage);
+    const { switchThePage } = this;
+    const {
+      movies, allPages, loadData, error,
+    } = this.state;
+    const { errorStatus, errorMessage } = error;
+    const { sessionID, setRatingForMovie } = this.props;
     const MoviesItem = movies.map(({ id, ...elems }) => (
       <Col className="gutter-row main__item" span={12} key={id}>
-        <MovieItem movies={elems} decoderGenres={decoderGenres} />
+        <TmdbConsumer>
+          {(decoderGenres) => (
+            <MovieItem
+              movies={elems}
+              setRating={setRatingForMovie}
+              id={id}
+              sessionID={sessionID}
+              decoderGenres={decoderGenres}
+            />
+          )}
+        </TmdbConsumer>
       </Col>
     ));
 
+    const hasData = loadData || errorStatus;
+    const loading = loadData ? <LoadingData /> : null;
+    const alert = errorStatus ? <ErrorComponent error={errorMessage} /> : null;
+    const moviesList = !hasData ? (
+      <MoviesListVisual MoviesItem={MoviesItem} switchThePage={switchThePage} totalPages={allPages} />
+    ) : null;
+
     return (
       <main className="main movies-app__main">
-        <Row className="main__list movies-app__main" gutter={[30, 30]}>
-          {MoviesItem}
-        </Row>
-        <Pagination
-          onChange={(evt) => switchThePage(evt)}
-          className="movies-app__pagination"
-          size="small"
-          defaultPageSize
-          showSizeChanger={false}
-          total={allPages}
-          defaultCurrent={1}
-        />
+        {loading}
+        {alert}
+        {moviesList}
       </main>
     );
   };
 }
 
+const LoadingData = () => (
+  <div className="wrapper__spin">
+    <Spin tip="Loading..." />
+  </div>
+);
+
+const ErrorComponent = ({ error }) => (
+  <div className="wrapper__error">
+    <Alert message={error} />
+  </div>
+);
+
+const MoviesListVisual = ({ MoviesItem, switchThePage, totalPages }) => (
+  <>
+    <Row className="main__list movies-app__main" gutter={[30, 30]}>
+      {MoviesItem}
+    </Row>
+    <Pagination
+      onChange={(evt) => switchThePage(evt)}
+      className="movies-app__pagination"
+      size="small"
+      defaultPageSize
+      showSizeChanger={false}
+      total={totalPages}
+      defaultCurrent={1}
+    />
+  </>
+);
+
+MoviesList.defaultProps = {
+  searchRequest: 'return',
+  activeTab: 'search',
+  sessionID: null,
+};
+
 MoviesList.propTypes = {
-  searchRequest: string.isRequired,
+  searchRequest: string,
+  activeTab: string,
+  sessionID: string,
+  getFilms: func.isRequired,
+  setRatingForMovie: func.isRequired,
+};
+
+ErrorComponent.propTypes = {
+  error: shape({
+    string: string.isRequired,
+  }).isRequired,
+};
+
+MoviesListVisual.propTypes = {
+  MoviesItem: arrayOf(element).isRequired,
+  switchThePage: func.isRequired,
+  totalPages: number.isRequired,
 };
