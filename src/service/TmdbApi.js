@@ -34,9 +34,12 @@ export default class TmdbService {
   };
 
   getGuestSession = async () => {
+    if (sessionStorage.getItem('sessionID')) return sessionStorage.getItem('sessionID');
     const { themoviedbLink, sendRequest } = this;
     const link = `${themoviedbLink}/authentication/guest_session/new`;
     const response = await sendRequest(link, 'GET');
+
+    sessionStorage.setItem('sessionID', response.guest_session_id);
     return response.guest_session_id;
   };
 
@@ -50,12 +53,14 @@ export default class TmdbService {
 
   getRatingMovies = async (options) => {
     const { sessionID } = options;
-    console.log(sessionID);
     const { themoviedbLink, sendRequest } = this;
     const link = `${themoviedbLink}/guest_session/${sessionID}/rated/movies?&sort_by=created_at.desc;`;
     const response = await sendRequest(link, 'GET');
     console.log(response);
-    return { movies: response.results };
+    return {
+      movies: response.results,
+      totalPages: response.total_pages,
+    };
   };
 
   getFilms = async (options) => {

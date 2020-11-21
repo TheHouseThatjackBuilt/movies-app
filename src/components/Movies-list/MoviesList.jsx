@@ -153,7 +153,9 @@ MoviesList.propTypes = {
 
 ErrorComponent.propTypes = {
   error: shape({
-    string: string.isRequired,
+    error: shape({
+      string,
+    }),
   }).isRequired,
 };
 
