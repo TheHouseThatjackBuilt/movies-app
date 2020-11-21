@@ -1,28 +1,25 @@
 /* eslint-disable */
 export default class TmdbService {
-  tokenV4 =
-    'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3OTRiYWNjZTFjMzc1YTBhMzExYjQ3YTM4NDQ1YmE5ZSIsInN1YiI6IjVmYTQyNTM4MjE2MjFkMDAzZmYxZWZkZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.C-Qx9MKzLfjcIx-h3fiuXViG75SXIMDJ6KSpDcq6lYc';
-
-  themoviedbLink = 'https://api.themoviedb.org/3';
+  apikey = '794bacce1c375a0a311b47a38445ba9e';
+  tmdbLink = 'https://api.themoviedb.org/3';
 
   sendRequest = async (url, method, body) => {
-    const requestOptions = {
+    const requestOption = {
       method,
       headers: {
-        Authorization: `Bearer ${this.tokenV4}`,
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify(body),
     };
 
-    const response = await fetch(url, requestOptions);
+    const response = await fetch(url, requestOption);
     if (!response.ok) throw new Error(response.status);
     return response.json();
   };
 
   getGenresList = async () => {
-    const { themoviedbLink, sendRequest } = this;
-    const link = `${themoviedbLink}/genre/movie/list`;
+    const { tmdbLink, sendRequest, apikey } = this;
+    const link = `${tmdbLink}/genre/movie/list?api_key=${apikey}`;
     const request = await sendRequest(link, 'GET');
     return request;
   };
@@ -35,8 +32,9 @@ export default class TmdbService {
 
   getGuestSession = async () => {
     if (sessionStorage.getItem('sessionID')) return sessionStorage.getItem('sessionID');
-    const { themoviedbLink, sendRequest } = this;
-    const link = `${themoviedbLink}/authentication/guest_session/new`;
+
+    const { tmdbLink, sendRequest, apikey } = this;
+    const link = `${tmdbLink}/authentication/guest_session/new?api_key=${apikey}`;
     const response = await sendRequest(link, 'GET');
 
     sessionStorage.setItem('sessionID', response.guest_session_id);
@@ -44,19 +42,18 @@ export default class TmdbService {
   };
 
   setRatingForMovie = async (rate, sessionId, id) => {
-    const { themoviedbLink, sendRequest } = this;
+    const { tmdbLink, apikey, sendRequest } = this;
     const body = { value: rate };
-    const link = `https://z4vrpkijmodhwsxzc.stoplight-proxy.io/3/movie/${id}/rating?guest_session_id=${sessionId}`;
+    const link = `${tmdbLink}/movie/${id}/rating?api_key=${apikey}&guest_session_id=${sessionId}`;
     const response = await sendRequest(link, 'POST', body);
     return response;
   };
 
   getRatingMovies = async (options) => {
     const { sessionID } = options;
-    const { themoviedbLink, sendRequest } = this;
-    const link = `${themoviedbLink}/guest_session/${sessionID}/rated/movies?&sort_by=created_at.desc;`;
+    const { tmdbLink, sendRequest, apikey } = this;
+    const link = `${tmdbLink}/guest_session/${sessionID}/rated/movies?api_key=${apikey}&sort_by=created_at.desc`;
     const response = await sendRequest(link, 'GET');
-    console.log(response);
     return {
       movies: response.results,
       totalPages: response.total_pages,
@@ -65,9 +62,9 @@ export default class TmdbService {
 
   getFilms = async (options) => {
     const { searchRequest, currentPage } = options;
-    const { themoviedbLink, sendRequest } = this;
-    const linkToGetFilms = `${themoviedbLink}/search/movie?&language=en-En&query=${searchRequest}&page=${currentPage}&include_adult=false`;
-    const response = await sendRequest(linkToGetFilms, 'GET');
+    const { tmdbLink, apikey, sendRequest } = this;
+    const link = `${tmdbLink}/search/movie?api_key=${apikey}&language=en-US&query=${searchRequest}&page=${currentPage}&include_adult=false`;
+    const response = await sendRequest(link, 'GET');
     if (response.results.length === 0) throw new Error('Nothing found');
     return {
       movies: response.results,
