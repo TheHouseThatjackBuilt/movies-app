@@ -1,6 +1,6 @@
-/* eslint-disable */
 export default class TmdbService {
   apikey = '794bacce1c375a0a311b47a38445ba9e';
+
   tmdbLink = 'https://api.themoviedb.org/3';
 
   sendRequest = async (url, method, body) => {

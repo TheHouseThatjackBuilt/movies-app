@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Tabs } from 'antd';
+import { Tabs, Layout } from 'antd';
 import { string, func, shape } from 'prop-types';
 
 import { TmdbService, TmdbProvider } from '../../service';
@@ -70,7 +70,7 @@ const AppVisual = ({
 }) => {
   const { TabPane } = Tabs;
   return (
-    <div className="movies-app">
+    <Layout className="movies-app">
       <TmdbProvider value={decoderGenres}>
         <Tabs defaultActiveKey="search" onChange={(tab) => onChange(tab)} centered="true">
           <TabPane tab="Search" key="search">
@@ -92,7 +92,7 @@ const AppVisual = ({
           </TabPane>
         </Tabs>
       </TmdbProvider>
-    </div>
+    </Layout>
   );
 };
 

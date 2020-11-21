@@ -68,6 +68,7 @@ export default class MoviesList extends PureComponent {
     } = this.state;
     const { errorStatus, errorMessage } = error;
     const { sessionID, setRatingForMovie } = this.props;
+    const total = Number.isNaN(allPages) ? 1 : allPages;
     const MoviesItem = movies.map(({ id, ...elems }) => (
       <Col className="gutter-row main__item" span={12} key={id}>
         <TmdbConsumer>
@@ -91,7 +92,7 @@ export default class MoviesList extends PureComponent {
       <MoviesListVisual
         MoviesItem={MoviesItem}
         switchThePage={switchThePage}
-        totalPages={allPages}
+        totalPages={total}
         currentPage={currentPage}
       />
     ) : null;
@@ -129,9 +130,9 @@ const MoviesListVisual = ({
       onChange={(evt) => switchThePage(evt)}
       className="movies-app__pagination"
       size="small"
+      total={20 * totalPages}
       defaultPageSize={20}
       showSizeChanger={false}
-      total={totalPages}
       defaultCurrent={currentPage}
     />
   </>

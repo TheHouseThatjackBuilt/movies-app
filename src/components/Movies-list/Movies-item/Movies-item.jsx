@@ -39,7 +39,7 @@ export default class MovieItem extends PureComponent {
     const {
       posterPath, releaseDate, voteAverage, title, overview, rating,
     } = movies;
-    const hasrating = rating || +sessionStorage.getItem(id.toString()) || 0;
+    const hasRating = rating || +sessionStorage.getItem(id.toString()) || 0;
     const description = formattedDescription(overview, title);
     const styleBorder = coloringTheRating(voteAverage);
     const src = posterPath ? `https://image.tmdb.org/t/p/w220_and_h330_face${posterPath}` : poster;
@@ -56,7 +56,7 @@ export default class MovieItem extends PureComponent {
           genreButtons={genreButtons}
           description={description}
           setRating={setRating}
-          rating={hasrating}
+          rating={hasRating}
           styleBorder={styleBorder}
         />
       </article>
