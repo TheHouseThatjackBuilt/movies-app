@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Tabs } from 'antd';
 import { string, func, shape } from 'prop-types';
 
@@ -6,7 +6,7 @@ import { TmdbService, TmdbProvider } from '../../service';
 import MoviesList from '../Movies-list';
 import Search from '../Search';
 
-export default class App extends Component {
+export default class App extends PureComponent {
   state = {
     searchValue: 'return',
     sessionID: null,

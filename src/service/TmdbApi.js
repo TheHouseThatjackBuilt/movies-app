@@ -54,6 +54,7 @@ export default class TmdbService {
     const { themoviedbLink, sendRequest } = this;
     const link = `${themoviedbLink}/guest_session/${sessionID}/rated/movies?&sort_by=created_at.desc;`;
     const response = await sendRequest(link, 'GET');
+    console.log(response);
     return { movies: response.results };
   };
 

@@ -64,7 +64,7 @@ export default class MoviesList extends PureComponent {
   render = () => {
     const { switchThePage } = this;
     const {
-      movies, allPages, loadData, error,
+      movies, allPages, loadData, error, currentPage,
     } = this.state;
     const { errorStatus, errorMessage } = error;
     const { sessionID, setRatingForMovie } = this.props;
@@ -88,7 +88,12 @@ export default class MoviesList extends PureComponent {
     const loading = loadData ? <LoadingData /> : null;
     const alert = errorStatus ? <ErrorComponent error={errorMessage} /> : null;
     const moviesList = !hasData ? (
-      <MoviesListVisual MoviesItem={MoviesItem} switchThePage={switchThePage} totalPages={allPages} />
+      <MoviesListVisual
+        MoviesItem={MoviesItem}
+        switchThePage={switchThePage}
+        totalPages={allPages}
+        currentPage={currentPage}
+      />
     ) : null;
 
     return (
@@ -113,7 +118,9 @@ const ErrorComponent = ({ error }) => (
   </div>
 );
 
-const MoviesListVisual = ({ MoviesItem, switchThePage, totalPages }) => (
+const MoviesListVisual = ({
+  MoviesItem, switchThePage, totalPages, currentPage,
+}) => (
   <>
     <Row className="main__list movies-app__main" gutter={[30, 30]}>
       {MoviesItem}
@@ -125,7 +132,7 @@ const MoviesListVisual = ({ MoviesItem, switchThePage, totalPages }) => (
       defaultPageSize
       showSizeChanger={false}
       total={totalPages}
-      defaultCurrent={1}
+      defaultCurrent={currentPage}
     />
   </>
 );
@@ -154,4 +161,5 @@ MoviesListVisual.propTypes = {
   MoviesItem: arrayOf(element).isRequired,
   switchThePage: func.isRequired,
   totalPages: number.isRequired,
+  currentPage: number.isRequired,
 };

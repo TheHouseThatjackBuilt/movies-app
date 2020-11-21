@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { PureComponent } from 'react';
 import {
   arrayOf, shape, string, number, func, element,
 } from 'prop-types';
@@ -8,7 +8,7 @@ import { Button, Rate } from 'antd';
 import { formattedDescription, coloringTheRating } from '../../../service';
 import poster from './no-poster.jpg';
 
-export default class MovieItem extends Component {
+export default class MovieItem extends PureComponent {
   state = {
     genres: [],
   };
@@ -29,19 +29,20 @@ export default class MovieItem extends Component {
   setRating = (value) => {
     const { sessionID, id, setRating } = this.props;
     setRating(value, sessionID, id);
+    sessionStorage.setItem(id.toString(), value.toString());
   };
 
   render() {
     const { setRating } = this;
     const { genres } = this.state;
-    const { movies } = this.props;
+    const { movies, id } = this.props;
     const {
       posterPath, releaseDate, voteAverage, title, overview, rating,
     } = movies;
+    const hasrating = rating || +sessionStorage.getItem(id.toString()) || 0;
     const description = formattedDescription(overview);
     const styleBorder = coloringTheRating(voteAverage);
     const src = posterPath ? `https://image.tmdb.org/t/p/w220_and_h330_face${posterPath}` : poster;
-
     const conditionFormatDate = typeof releaseDate !== 'undefined' && releaseDate.length === 10;
     const formatDate = conditionFormatDate ? format(new Date(releaseDate), 'PP') : releaseDate;
     const genreButtons = genresHandler(genres);
@@ -55,7 +56,7 @@ export default class MovieItem extends Component {
           genreButtons={genreButtons}
           description={description}
           setRating={setRating}
-          rating={rating}
+          rating={hasrating}
           styleBorder={styleBorder}
         />
       </article>
