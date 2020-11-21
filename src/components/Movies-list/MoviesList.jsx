@@ -129,7 +129,7 @@ const MoviesListVisual = ({
       onChange={(evt) => switchThePage(evt)}
       className="movies-app__pagination"
       size="small"
-      defaultPageSize
+      defaultPageSize={20}
       showSizeChanger={false}
       total={totalPages}
       defaultCurrent={currentPage}
