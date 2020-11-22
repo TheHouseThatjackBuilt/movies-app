@@ -68,7 +68,8 @@ export default class MoviesList extends PureComponent {
     } = this.state;
     const { errorStatus, errorMessage } = error;
     const { sessionID, setRatingForMovie } = this.props;
-    const total = Number.isNaN(allPages) ? 1 : allPages;
+    const total = Number.isNaN(allPages) || typeof allPages === 'undefined' ? 1 : allPages;
+
     const MoviesItem = movies.map(({ id, ...elems }) => (
       <Col className="gutter-row main__item" span={12} key={id}>
         <TmdbConsumer>
